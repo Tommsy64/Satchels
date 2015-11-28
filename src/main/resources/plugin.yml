@@ -1,0 +1,9 @@
+name: Satchels
+main: io.github.tommsy64.satchels.Satchels
+version: 0.0.1
+description: Simple backpacks.
+author: Tommsy64
+commands:
+   satchels:
+      aliases: [satchel, backpacks, backpack]
+      description: The main Satchels command.

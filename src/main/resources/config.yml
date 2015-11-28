@@ -1,0 +1,14 @@
+# ##########################################################
+# +------------------------------------------------------+ #
+# |                      WARNING                         | #
+# +------------------------------------------------------+ #
+# ##########################################################
+# All data stored in items is encrypted with RC5. 
+# CHANGING THE RC5 KEY WILL INVALIDATE ALL BACKPACKS!
+# Just in case, keep a backup of the key!
+
+rc5:
+  key: ''
+
+messages:
+  noPermission: '&cYou do not have permission to do that!'
