@@ -51,7 +51,7 @@ public class PersistantData {
     }
 
     public ItemStack storeData(String key, ItemStack on, ConfigurationSerializable... data) {
-        return storeData(key, on, BukkitSerialUtil.toByteArray(data));
+        return storeData(key, on, BukkitSerialUtil.toBase64(data));
     }
 
     public ItemStack storeData(String key, ItemStack on, Serializable data) {
@@ -101,10 +101,10 @@ public class PersistantData {
     }
 
     public ConfigurationSerializable[] readSerializable(String key, ItemStack from, ConfigurationSerializable... defaultValue) {
-        byte[] data = readString(key, from).getBytes();
-        if (data == null)
+        String str = readString(key, from);
+        if (str == null)
             return defaultValue;
-        return BukkitSerialUtil.fromByteArray(data);
+        return BukkitSerialUtil.fromBase64(str);
     }
 
     public <T extends Serializable> T readSerializable(String key, ItemStack from, T defaultValue) {

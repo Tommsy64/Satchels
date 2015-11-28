@@ -7,6 +7,8 @@
 # CHANGING THE RC5 KEY WILL INVALIDATE ALL BACKPACKS!
 # Just in case, keep a backup of the key!
 
+cacheDelay: 3600
+
 rc5:
   key: ''
 
