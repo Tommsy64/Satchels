@@ -37,11 +37,7 @@ public class ItemListener implements Listener {
         Inventory inv = inventoryCache.get(uuid);
         if (inv == null) {
             String title = pd.readString(Keys.TITLE.key, itemStack, "Satchel");
-            int size = pd.readInt(Keys.SIZE.key, itemStack, 9);
-            if (size > 90 || size % 9 != 0) {
-                size = (size - size % 9) + 9;
-                itemStack = pd.storeData(Keys.SIZE.key, itemStack, Math.min(size, 90));
-            }
+            int size = pd.readInt(Keys.ROWS.key, itemStack, 1) * 9;
             ConfigurationSerializable[] cs = pd.readSerializable(Keys.CONTENTS.key, itemStack, new ItemStack[size]);
             ItemStack[] items = new ItemStack[size];
             for (int i = 0; i < cs.length; i++)
@@ -62,8 +58,9 @@ public class ItemListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onInventoryClick(InventoryClickEvent event) {
-        if (inventoryCache.containsValue(event.getInventory()))
-            event.setCancelled(PersistantData.get().readBoolean(Keys.IS_BACKPACK.key, event.getCurrentItem()));
+        String uuid = inventoryCache.inverse().get(event.getInventory());
+        if (uuid != null)
+            event.setCancelled(PersistantData.get().readString(Keys.UUID.key, event.getCurrentItem()).equals(uuid));
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

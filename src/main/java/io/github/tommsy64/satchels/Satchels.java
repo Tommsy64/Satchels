@@ -1,7 +1,8 @@
 package io.github.tommsy64.satchels;
 
 import java.io.IOException;
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
@@ -9,9 +10,13 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
+import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -31,8 +36,10 @@ public class Satchels extends JavaPlugin {
     @Setter
     private String rc5Key;
 
-    private int cacheDelay;
+    private int cacheClearInterval;
     private ItemListener itemListener;
+
+    private ArrayList<Backpack> backpacks;
 
     @Override
     public void onEnable() {
@@ -43,7 +50,7 @@ public class Satchels extends JavaPlugin {
         config.options().copyHeader(true);
         saveDefaultConfig();
         rc5Key = config.getString("rc5.key");
-        cacheDelay = config.getInt("cacheClearInterval", 60 * 60);
+        cacheClearInterval = config.getInt("cacheClearInterval", 60 * 60);
 
         PersistantData pd = PersistantData.get();
         getConfig().set("rc5.key", rc5Key);
@@ -73,7 +80,10 @@ public class Satchels extends JavaPlugin {
                 getLogger().log(Level.INFO, "Clearing Inventory Cache!");
                 itemListener.clearCache();
             }
-        }.runTaskTimer(this, 20 * cacheDelay, 20 * cacheDelay);
+        }.runTaskTimer(this, 20 * cacheClearInterval, 20 * cacheClearInterval);
+
+        backpacks = new ArrayList<>();
+        loadSatchels();
     }
 
     @Override
@@ -89,13 +99,65 @@ public class Satchels extends JavaPlugin {
         pm.enablePlugin(this);
     }
 
+    private void loadSatchels() {
+        ConfigurationSection config = this.getConfig().getConfigurationSection("backpacks");
+
+        for (String key : config.getKeys(false)) {
+            try {
+                ConfigurationSection bpSection = config.getConfigurationSection(key);
+
+                Backpack backpack = new Backpack();
+                backpack.setMaterial(Material.matchMaterial(bpSection.getString("item")));
+                backpack.setItemName(ChatColor.translateAlternateColorCodes('&', bpSection.getString("itemName")));
+                List<String> lore = bpSection.getStringList("lore");
+                lore.forEach(string -> ChatColor.translateAlternateColorCodes('&', string));
+                backpack.setLore(lore);
+                backpack.setPermission(key);
+                backpack.setTitle(ChatColor.translateAlternateColorCodes('&', bpSection.getString("title")));
+                backpack.setRows(bpSection.getInt("rows"));
+
+                ConfigurationSection rSection = bpSection.getConfigurationSection("recipe");
+                ConfigurationSection iSection = rSection.getConfigurationSection("ingredients");
+                Recipe recipe;
+                boolean shaped = rSection.getBoolean("shaped");
+                if (shaped) {
+                    List<String> matrix = rSection.getStringList("matrix");
+                    ShapedRecipe shapedRecipe = new ShapedRecipe(backpack.generateItemStack()).shape(matrix.toArray(new String[matrix.size()]));
+
+                    for (String iKey : iSection.getKeys(false)) {
+                        if (iKey.length() != 1)
+                            continue;
+                        try {
+                            shapedRecipe.setIngredient(iKey.charAt(0), Material.matchMaterial(iSection.getString(iKey)));
+                        } catch (IllegalArgumentException iae) {
+                            Material m = Material.matchMaterial(iSection.getString(iKey));
+                            getLogger().warning("Broken ingredient in " + backpack.getPermission() + ": " + iKey + ": " + (m == null ? "null" : m.toString()));
+                        }
+                    }
+                    recipe = shapedRecipe;
+                } else {
+                    ShapelessRecipe shapelessRecipe = new ShapelessRecipe(backpack.generateItemStack());
+                    for (String iKey : iSection.getKeys(false))
+                        shapelessRecipe.addIngredient(Material.matchMaterial(iSection.getString(iKey)));
+                    recipe = shapelessRecipe;
+                }
+                backpack.setRecipe(recipe);
+                Bukkit.addRecipe(recipe);
+                backpacks.add(backpack);
+            } catch (Exception e) {
+                getLogger().log(Level.SEVERE, "Error loading a backpack!", e);
+            }
+        }
+        getLogger().info("Loaded " + backpacks.size() + " backpack" + (backpacks.size() > 1 ? "s" : "") + "!");
+    }
+
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (args.length == 0 || (args.length > 0 && args[0].equalsIgnoreCase("help")))
             if (Permissions.HELP.check(sender)) {
                 sender.sendMessage(ChatColor.BLUE + "/satchels " + ChatColor.WHITE + ChatColor.UNDERLINE + "reload" + ChatColor.BLUE + " - Reloads the plugin");
                 if (sender instanceof Player) {
-                    sender.sendMessage(ChatColor.BLUE + "/satchels " + ChatColor.WHITE + ChatColor.UNDERLINE + "create <title> <size>" + ChatColor.BLUE
+                    sender.sendMessage(ChatColor.BLUE + "/satchels " + ChatColor.WHITE + ChatColor.UNDERLINE + "create <title> <rows>" + ChatColor.BLUE
                             + " - Makes the item in your hand a satchel.");
                 }
             } else
@@ -126,7 +188,7 @@ public class Satchels extends JavaPlugin {
                         else if (args.length > 2 && createSatchel(item, args[1], args[2])) {
                             p.sendMessage(ChatColor.GREEN + "Succefully" + ChatColor.BLUE + " turned item into a satchel!");
                         } else
-                            p.sendMessage(ChatColor.BLUE + "/satchels " + ChatColor.WHITE + ChatColor.UNDERLINE + "create <title> <size>" + ChatColor.BLUE
+                            p.sendMessage(ChatColor.BLUE + "/satchels " + ChatColor.WHITE + ChatColor.UNDERLINE + "create <title> <rows>" + ChatColor.BLUE
                                     + " - Makes the item in your hand a satchel.");
                     } else
                         sendMessage(sender, Messages.getNoPermission());
@@ -137,26 +199,15 @@ public class Satchels extends JavaPlugin {
         return true;
     }
 
-    private boolean createSatchel(ItemStack item, String title, String sizeStr) {
+    public static boolean createSatchel(ItemStack item, String title, String rowsStr) {
         int size;
         try {
-            size = Integer.parseInt(sizeStr);
+            size = Integer.parseInt(rowsStr);
         } catch (NumberFormatException nfe) {
             return false;
         }
-        createSatchel(item, title, size);
+        Backpack.createSatchel(item, title, size);
         return true;
-    }
-
-    private void createSatchel(ItemStack item, String title, int size) {
-        if (size % 9 != 0)
-            size = (size - size % 9) + 9; // Make a multiple of 9
-        size = Math.min(size, 90);
-        PersistantData pd = PersistantData.get();
-        pd.storeData(Keys.IS_BACKPACK.key, item, true);
-        pd.storeData(Keys.TITLE.key, item, title);
-        pd.storeData(Keys.SIZE.key, item, size);
-        pd.storeData(Keys.UUID.key, item, UUID.randomUUID().toString());
     }
 
     private void sendMessage(CommandSender sender, String msg) {
