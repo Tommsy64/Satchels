@@ -27,12 +27,11 @@ public class BagHandler implements Listener {
 
     private HashBiMap<String, Inventory> inventoryCache = HashBiMap.create();
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH)
     public void onItemRightClick(PlayerInteractEvent event) {
         Action action = event.getAction();
         ItemStack itemStack = event.getItem();
-        if (itemStack == null || itemStack.getType().equals(Material.AIR)
-                || (!action.equals(Action.RIGHT_CLICK_BLOCK) && !action.equals(Action.RIGHT_CLICK_AIR)))
+        if (itemStack == null || itemStack.getType().equals(Material.AIR) || (action != Action.RIGHT_CLICK_BLOCK && action != Action.RIGHT_CLICK_AIR))
             return;
         PersistantData pd = PersistantData.get();
         if (!pd.readBoolean(Keys.IS_BACKPACK.key, itemStack))
