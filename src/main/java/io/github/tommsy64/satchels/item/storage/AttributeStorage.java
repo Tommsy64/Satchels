@@ -15,7 +15,7 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-package io.github.tommsy64.satchels.storage;
+package io.github.tommsy64.satchels.item.storage;
 
 import java.util.UUID;
 
@@ -24,9 +24,9 @@ import org.bukkit.inventory.ItemStack;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
-import io.github.tommsy64.satchels.storage.Attributes.Attribute;
-import io.github.tommsy64.satchels.storage.Attributes.AttributeType;
-import io.github.tommsy64.satchels.storage.Attributes.Operation;
+import io.github.tommsy64.satchels.item.storage.Attributes.Attribute;
+import io.github.tommsy64.satchels.item.storage.Attributes.AttributeType;
+import io.github.tommsy64.satchels.item.storage.Attributes.Operation;
 
 /**
  * Store meta-data in an ItemStack as attributes.

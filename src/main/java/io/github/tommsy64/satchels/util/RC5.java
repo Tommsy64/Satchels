@@ -1,6 +1,3 @@
-/*
- * All Rights Reserved
- */
 package io.github.tommsy64.satchels.util;
 
 import java.security.SecureRandom;

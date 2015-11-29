@@ -15,7 +15,7 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-package io.github.tommsy64.satchels.storage;
+package io.github.tommsy64.satchels.item.storage;
 
 import java.io.BufferedInputStream;
 import java.io.DataInput;

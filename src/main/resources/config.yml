@@ -8,11 +8,11 @@
 # Just in case, keep a backup of the key!
 
 backpacks:
-  small:
+  example:
     item: Leather
-    itemName: &rSmall Satchel
+    item-name: "&rSmall Satchel"
     lore:
-    - 9 Slot Satchel
+    - "&c9 Slot Satchel"
     recipe:
       shaped: true
       ingredients:
@@ -22,13 +22,13 @@ backpacks:
       - LLL
       - LWL
       - LLL
-    rows: 3
-    title: Small Satchel
-    canContainOther: false
+    rows: 1
+    title: "Small Satchel"
+    check-permission: false
 
-cacheClearInterval: 3600
+cache-clear-interval: 1800
 
-rc5:
+RC5:
   key: ''
 
 messages:

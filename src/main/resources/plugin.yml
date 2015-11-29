@@ -7,3 +7,20 @@ commands:
    satchels:
       aliases: [satchel, backpacks, backpack]
       description: The main Satchels command.
+      usage: /<command> <sub-command>
+permissions:
+    satchels.*:
+        description: Gives access to all satchel commands and bags
+        children:
+            satchels.help: true
+            satchels.reload: true
+            satchels.clearCache: true
+    satchels.reload:
+        description: Allows you to reload the Satchels plugin
+        default: op
+    satchels.help:
+        description: Allows you to view help for the Satchels command
+        default: op
+    satchels.clearCache:
+        description: Allows you to clear the inventory cache.
+        default: op

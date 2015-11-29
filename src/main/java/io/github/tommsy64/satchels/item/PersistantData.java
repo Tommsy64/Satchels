@@ -1,7 +1,4 @@
-/*
- * All Rights Reserved
- */
-package io.github.tommsy64.satchels;
+package io.github.tommsy64.satchels.item;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -13,14 +10,15 @@ import org.bukkit.Material;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.ItemStack;
 
-import io.github.tommsy64.satchels.storage.AttributeStorage;
+import io.github.tommsy64.satchels.Satchels;
+import io.github.tommsy64.satchels.item.storage.AttributeStorage;
 import io.github.tommsy64.satchels.util.Base64Util;
 import io.github.tommsy64.satchels.util.BukkitSerialUtil;
 import io.github.tommsy64.satchels.util.RC5;
 import io.github.tommsy64.satchels.util.SerialUtil;
 
 /**
- * Creator: LordLambda, Tommsy64 Date: 5/3/15 Usage: A manager of persistent Data on items.
+ * Creator: Tommsy64, LordLambda Date: 5/3/15 Usage: A manager of persistent Data on items.
  *
  * This class manages storing persistent data to an actual ItemStack itself. This allows for many many things. The way this works is by storing it in NBTData ,
  * this allows to us to add little to no latency on the player, and not have it be stored in a database/flat-file, etc. Since technically players can edit
@@ -38,8 +36,8 @@ public class PersistantData {
     protected PersistantData() {
         try {
             String rc5Key = Satchels.getInstance().getRc5Key();
-            if (rc5Key == null || rc5Key.length() != 256) {
-                Satchels.log(Level.INFO, "Generating new RC5 Key!");
+            if (rc5Key == null || rc5Key.length() == 0) {
+                Satchels.log(Level.INFO, "No RC5 key found, generated a new one!");
                 rc5 = new RC5();
                 Satchels.getInstance().setRc5Key(new String(rc5.baseKey));
             } else
@@ -244,5 +242,9 @@ public class PersistantData {
             }
         }
         return instance.rc5 != null ? instance : null;
+    }
+
+    public static void unload() {
+        instance = null;
     }
 }
