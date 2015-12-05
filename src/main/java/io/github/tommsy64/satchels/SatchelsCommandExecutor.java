@@ -28,10 +28,9 @@ public class SatchelsCommandExecutor implements CommandExecutor, TabCompleter {
             } else if (args[0].equalsIgnoreCase("clearCache")) {
                 if (Permissions.CLEAR_CACHE.check(sender)) {
                     Satchels.clearCache();
-                    if (sender instanceof Player) {
+                    if (sender instanceof Player)
                         Satchels.log().log(Level.INFO, sender.getName() + " cleared the Inventory Cache!");
-                        sender.sendMessage(ChatColor.BLUE + "Inventory Cache " + ChatColor.GREEN + "succesfully" + ChatColor.BLUE + " cleared!");
-                    }
+                    sender.sendMessage(ChatColor.BLUE + "Inventory Cache " + ChatColor.GREEN + "succesfully" + ChatColor.BLUE + " cleared!");
                 } else
                     sendMessage(sender, Messages.getNoPermission());
             } else
